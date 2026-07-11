@@ -35,8 +35,10 @@ def izbornik():
     print("1. unos prihoda i rashoda")
     print("2. stanje poslovanja")
     print("3. plan poslovanja")
-    print("4. izlazak iz sustava")
-    print("5. napomena")
+    print("4. Tablični prikaz")
+    print("5. Grafička vizualizacija")
+    print("6. izlazak iz sustava")
+    print("7. napomena")
     print(" ")
     
 # Funkcija za unos mjesečnog prihoda i rashoda
@@ -57,61 +59,96 @@ def unos(mjeseci, prihodi, rashodi):
 def provjera_stanja(prihodi, rashodi, lose_stanje):
     if (sum(prihodi) == sum(rashodi)):
         lose_stanje = True
-        return "Mi smo na nuli", lose_stanje
+        print("Mi smo na nuli")
+        return lose_stanje
     elif (sum(prihodi) < sum(rashodi)):
         lose_stanje = True
-        return "U lošem je stanju poslovanje!", lose_stanje
+        print("U lošem je stanju poslovanje!")
+        return lose_stanje
     else:
         lose_stanje = False
-        return "U dobrom je stanju poslovanje!", lose_stanje
+        print("U dobrom je stanju poslovanje!")
+        return lose_stanje
 
 # Funkcija koja formira stanje na temelju prihoda i rashoda u formatu jedne godine
 
 def stanje(prihodi, rashodi):
     x = sum(prihodi)
     y = sum(rashodi)
-    stanje = x - y
-    return stanje
+    posl_stanje = x - y
+    print(f"trenutno stanje jest: {posl_stanje}")
+    return posl_stanje
+
+# Funkcija za unos planiranog stanja
+
+def plansko_stanje():
+    plan_stanje = int(input("Unesite vaše planirano stanje: "))
+    return plan_stanje
 
 # Funkcija za unos plana poslovanja
-
 def plan_poslovanja(prihodi, rashodi, lose_stanje):
     trenutno_stanje = stanje(prihodi, rashodi)
     neostvareno = False
     negativa = False
-    plan_stanje = int(input("Unesite vaše planirano stanje: "))
+    plan_stanje = plansko_stanje()
     if trenutno_stanje < plan_stanje:
         neostvareno = True
     if (lose_stanje):
         negativa = True
     if (neostvareno and negativa):
-        return "Kako biste ostvarili željeno stanje potrebno je da smanjite rashode!"
+        print("Kako biste ostvarili željeno stanje potrebno je da smanjite rashode!")
+        return plan_stanje
     elif (neostvareno and not negativa):
-        return "Kako biste ostvarili željeno stanje potrebno je povečati prihode!"
+        print( "Kako biste ostvarili željeno stanje potrebno je povečati prihode!")
+        return plan_stanje
     elif (not neostvareno and not negativa):
-        return "Ostvarili ste već željeno stanje!"
+        print("Ostvarili ste već željeno stanje!")
+        return  plan_stanje
     else:
-        return "Nevažeći unos!"
+        print("Nevažeći unos!")
 
+# Funkcija za tablični zapis prihoda, rashoda i stanja naspram planiranog stanja
 
+def tablicni_zapis(mjeseci, prihodi, rashodi, plan_stanje):
+    trenutno_stanje = stanje(prihodi, rashodi)
+    df = pd.DataFrame({
+        'Mjesec': mjeseci,
+        'Prihod': prihodi,
+        'Rashod': rashodi
+    })
+    print(df)
+    print(f"\nTrenutno stanje: {trenutno_stanje}\nPlanirano stanje: {plan_stanje}")
+
+# Funkcija za vizualizaciju podataka
+
+def vizualizacija(prihodi, rashodi):
+    plt.plot(prihodi, color='b', label='Prihodi')
+    plt.plot(rashodi, color='r', label='Rashodi')
+    plt.legend()
+    plt.show()
 
 # Glavna funkcija koja pokreće cijelu aplikaciju čim je pokrenuta
 
-def main(mjeseci, prihodi, rashodi, lose_stanje):
+def main(mjeseci, prihodi, rashodi, lose_stanje, plan_stanje):
     while True:
         napomena()
         while True:
             izbornik()
-            odg = int(input("Unesite broj funkcionalnosti (1, 2, 3, 4 ili 5): "))
+            odg = int(input("Unesite broj funkcionalnosti (1, 2, 3, 4, 5, 6 ili 7 ): "))
             if odg == 1:
                 unos(mjeseci, prihodi, rashodi)
             elif odg == 2:
                 provjera_stanja(prihodi, rashodi, lose_stanje)
             elif odg == 3:
-                plan_poslovanja(stanje(prihodi, rashodi), provjera_stanja(prihodi, rashodi, lose_stanje))
+                plan_poslovanja(prihodi, rashodi, lose_stanje)
             elif odg == 4:
-                sys.exit()
+                tablicni_zapis(mjeseci, prihodi, rashodi, plan_stanje)
             elif odg == 5:
+                vizualizacija(prihodi, rashodi)
+            elif odg == 6:
+                print("U redu, doviđenja!")
+                sys.exit()
+            elif odg == 7:
                 break
 
-main(mjeseci, prihodi, rashodi, lose_stanje)
+main(mjeseci, prihodi, rashodi, lose_stanje, 0)
